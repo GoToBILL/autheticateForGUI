@@ -1,4 +1,4 @@
-package autotradingAuthenticate.auth.entity;
+package autotradingAuthenticate.autotrading.auth.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

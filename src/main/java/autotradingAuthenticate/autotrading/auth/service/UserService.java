@@ -1,7 +1,7 @@
-package autotradingAuthenticate.auth.service;
+package autotradingAuthenticate.autotrading.auth.service;
 
-import autotradingAuthenticate.auth.entity.User;
-import autotradingAuthenticate.auth.repository.UserRepository;
+import autotradingAuthenticate.autotrading.auth.entity.User;
+import autotradingAuthenticate.autotrading.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.Optional;

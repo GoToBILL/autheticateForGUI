@@ -1,17 +1,15 @@
-package autotradingAuthenticate.auth.Controller;
+package autotradingAuthenticate.autotrading.auth.Controller;
 
-import autotradingAuthenticate.auth.authDto.AuthRequest;
-import autotradingAuthenticate.auth.authDto.AuthResponse;
-import autotradingAuthenticate.auth.entity.User;
-import autotradingAuthenticate.auth.service.UserService;
+import autotradingAuthenticate.autotrading.auth.authDto.AuthRequest;
+import autotradingAuthenticate.autotrading.auth.authDto.AuthResponse;
+import autotradingAuthenticate.autotrading.auth.entity.User;
+import autotradingAuthenticate.autotrading.auth.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController

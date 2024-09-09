@@ -1,4 +1,4 @@
-package autotradingAuthenticate.auth.authDto;
+package autotradingAuthenticate.autotrading.auth.authDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

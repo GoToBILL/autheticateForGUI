@@ -1,6 +1,6 @@
-package autotradingAuthenticate.auth.repository;
+package autotradingAuthenticate.autotrading.auth.repository;
 
-import autotradingAuthenticate.auth.entity.User;
+import autotradingAuthenticate.autotrading.auth.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
