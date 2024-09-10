@@ -15,6 +15,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class User extends BaseTimeEntity{
     @Id
+    @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
