@@ -18,4 +18,9 @@ public class UserIp {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    public UserIp(String ipAddress, User user) {
+        this.ipAddress = ipAddress;
+        this.user = user;
+    }
 }
