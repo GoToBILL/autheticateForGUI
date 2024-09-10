@@ -13,11 +13,6 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public User createNewUser(String username, String ipAddress) {
-        User user = new User(username, UUID.randomUUID().toString(),ipAddress);
-        return userRepository.save(user);
-    }
-
     public Optional<User> findUserByAuthToken(String authToken) {
         return userRepository.findByAuthToken(authToken);
     }
@@ -32,7 +27,7 @@ public class UserService {
         return false;
     }
 
-    public boolean isNewUser(String username) {
-        return userRepository.findByUsername(username).isEmpty();
+    public boolean findByUsername(String username) {
+        return userRepository.findByUsername(username).isPresent();
     }
 }

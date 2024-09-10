@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -15,18 +18,15 @@ public class User extends BaseTimeEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
     private String username;
-
-    @Column(nullable = false, unique = true)
     private String authToken;
 
-    @Column
-    private String ipAddress;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UserIp> ipAddresses = new ArrayList<>();
 
-    public User(String username, String authToken, String ipAddress) {
+    public User(String username, String authToken) {
         this.username = username;
         this.authToken = authToken;
-        this.ipAddress = ipAddress;
+
     }
 }

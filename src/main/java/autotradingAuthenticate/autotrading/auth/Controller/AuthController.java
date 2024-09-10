@@ -22,10 +22,10 @@ public class AuthController {
     public ResponseEntity<AuthResponse> authenticate(@RequestBody AuthRequest authRequest, HttpServletRequest request) {
         String clientIp = request.getRemoteAddr();  // 클라이언트 IP 주소
 
-        if (userService.isNewUser(authRequest.getUsername())) {
-            // 새로운 사용자라면 UUID를 생성하고 사용자 정보를 DB에 저장
-            User newUser = userService.createNewUser(authRequest.getUsername(), clientIp);
-            return ResponseEntity.ok(new AuthResponse("success", newUser.getAuthToken()));
+        // 데이터베이스에 사용자가 등록되어 있는지 확인
+        if (!userService.findByUsername(authRequest.getUsername())) {
+            // 등록되지 않은 사용자일 경우 접근 불가
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new AuthResponse("User not registered"));
         }
 
         // 기존 사용자라면 토큰과 IP를 확인
