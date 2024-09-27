@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>병주의 일기장</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script th:src="@{/js/axios-config.js}"></script>
+    <script th:src="@{/js/auth.js}"></script>
+    <script th:src="@{/js/common.js}"></script>
+    <script th:src="@{/js/board.js}"></script>
+</head>
+<body>
+<!-- common-header.html 파일을 포함 -->
+<div th:replace="~{fragments/common-header :: header}"></div>
+
+<!-- 로그인/로그아웃 버튼 영역 -->
+<div id="auth-buttons">
+    <button id="btn login-btn" onclick="window.location.href='/login';" style="display:none;">로그인</button>
+    <button id="btn logout-btn" onclick="logout();" style="display:none;">로그아웃</button>
+</div>
+
+<main id="main-content">
+    <!-- 히어로 섹션 -->
+    <div class="hero">
+        <h2>이래서 로이갓 로이갓 하는 구나</h2>
+        <button id="board-button" class="btn">게시판 바로가기</button>
+        <button id="bet-button" class="btn">내기 내역 보기</button>
+    </div>
+
+    <!-- 주요 기능 섹션 -->
+    <div class="features">
+        <div class="feature">
+            <img src="/images/1.jpg" alt="풍빠모임">
+            <h3>강릉 여행</h3>
+            <p>대풍근</p>
+        </div>
+        <div class="feature">
+            <img src="/images/2.jpg" alt="코 큰 놈,대가리 큰 놈">
+            <h3>502호팟</h3>
+            <p>코코코코알라</p>
+        </div>
+        <div class="feature">
+            <img src="/images/3.jpg" alt="패드립 빼고 가능팸">
+            <h3>여행팟</h3>
+            <p>븅신들</p>
+        </div>
+        <div class="feature">
+            <img src="/images/4.jpg" alt="스키장 가서 씨나온 풍근이">
+            <h3>스키장</h3>
+            <p>비쁠 나오는 스키장</p>
+        </div>
+        <div class="feature">
+            <img src="/images/5.jpg" alt="사람 뒤지게 많음">
+            <h3>불꽃축제</h3>
+            <p>온세상 커플 다 옴</p>
+        </div>
+    </div>
+</main>
+<script>
+
+</script>
+</body>
+</html>

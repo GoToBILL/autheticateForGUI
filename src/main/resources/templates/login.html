@@ -1,0 +1,79 @@
+<!-- src/main/resources/templates/login.html -->
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - 병주의 일기장</title>
+    <link rel="stylesheet" th:href="@{/css/login.css}"> <!-- 로그인 전용 CSS -->
+    <script th:src="@{/js/auth.js}"></script> <!-- 공통 스크립트 추가 -->
+</head>
+<body>
+<div class="login-container">
+    <div class="login-header">
+        <h2>군자동 남주혁</h2>
+        <p>로그인하여 더 많은 기능을 이용하세요.</p>
+    </div>
+    <form onsubmit="event.preventDefault(); login();">
+        <input type="hidden" id="redirectUrl" name="redirectUrl" th:value="${redirectUrl}">
+        <div class="input-group">
+            <label for="username">아이디</label>
+            <input type="text" id="username" name="username" placeholder="아이디를 입력하세요" required>
+        </div>
+        <div class="input-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+        </div>
+        <button type="submit" class="login-button">로그인</button>
+    </form>
+    <div class="login-footer">
+        <p>계정이 없으신가요? <a th:href="'/signup?redirectUrl=' + ${redirectUrl}">회원가입</a></p>
+    </div>
+</div>
+<script>
+    function login() {
+        console.log('로그인 요청 시작'); // 여기가 실행되는지 확인
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const redirectUrl = document.getElementById('redirectUrl').value; // hidden input의 값
+
+        fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password,
+                redirectUrl: redirectUrl
+            })
+        })
+            .then(response => {
+                console.log('Response Status:', response.status); // 응답 상태 코드 확인
+                if (!response.ok) {
+                    alert("아이디 혹은 비밀번호가 틀렸습니다."); // 오류 메시지를 alert로 출력
+                    throw new Error('로그인 요청 실패'); // 오류 발생
+                }
+                return response.text(); // 응답을 텍스트로 받아오기
+            })
+            .then(token => {
+                alert("로그인에 성공했습니다."); // 로그인 성공 메시지 출력
+                storeToken(token);
+                if (redirectUrl && redirectUrl.trim() !== '') {
+                    // redirectUrl이 있는 경우 해당 URL로 이동
+                    window.location.href = redirectUrl;
+                } else {
+                    // redirectUrl이 없는 경우 기본 홈 페이지로 이동
+                    window.location.href = '/'; // 홈 페이지로 리다이렉트
+                }
+            })
+            .catch(error => {
+                if (error.response) {
+                    alert("아이디 혹은 비밀번호가 틀렸습니다."); // 오류 메시지를 alert로 출력
+                }
+            });
+    }
+</script>
+</body>
+</html>

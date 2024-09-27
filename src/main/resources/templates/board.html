@@ -1,0 +1,25 @@
+<!-- src/main/resources/templates/board.html -->
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판 - 병주의 일기장</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header>
+    <h1>게시판</h1>
+</header>
+<main>
+    <ul id="post-list">
+        <!-- 서버에서 받은 게시글 데이터를 출력 -->
+        <li th:each="post : ${posts}">
+            <h3 th:text="${post.title}">제목</h3>
+            <p th:text="${post.content}">내용</p>
+            <small>작성자: <span th:text="${post.author}">작성자</span> | 작성일: <span th:text="${post.createdAt}">작성일</span></small>
+        </li>
+    </ul>
+</main>
+</body>
+</html>
