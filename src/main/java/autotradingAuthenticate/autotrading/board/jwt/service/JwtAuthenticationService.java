@@ -1,8 +1,7 @@
-package autotradingAuthenticate.autotrading.utils.jwt;
+package autotradingAuthenticate.autotrading.board.jwt.service;
 
-import autotradingAuthenticate.autotrading.board.member.dto.CachedUserDetails;
 import autotradingAuthenticate.autotrading.board.member.service.CachedUserDetailsService;
-import autotradingAuthenticate.autotrading.board.member.service.MyUserDetailsService;
+import autotradingAuthenticate.autotrading.board.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -11,15 +10,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class JwtAuthenticationService {
 
     private final JwtUtil jwtUtil;
-    private final MyUserDetailsService userDetailsService;
+//    private final MyUserDetailsService userDetailsService;
     private final CachedUserDetailsService cachedUserDetailsService;
-
     /**
      * JWT 토큰을 검증하고, 유효한 경우 사용자 인증 정보를 설정한다.
      * 유효하지 않으면 리프레시 토큰을 사용하여 새 액세스 토큰을 발급한다.
@@ -48,9 +47,8 @@ public class JwtAuthenticationService {
 
         // 사용자 이름이 있고 인증 정보가 없는 경우 JWT 검증
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = getCachedUserDetails(username);
 //            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
+            UserDetails userDetails = cachedUserDetailsService.loadUserByUsername(username);
             // 3. 액세스 토큰 유효성 검증 및 SecurityContext에 인증 정보 설정
             if (jwtUtil.validateAccessToken(jwt, userDetails.getUsername())) {
                 setAuthentication(userDetails, request); // 인증 설정
@@ -60,15 +58,6 @@ public class JwtAuthenticationService {
         }
     }
 
-
-    private UserDetails getCachedUserDetails(String username) {
-        CachedUserDetails cachedUserDetails = cachedUserDetailsService.loadUserByUsername(username);
-        return new org.springframework.security.core.userdetails.User(
-                cachedUserDetails.getUsername(),
-                cachedUserDetails.getPassword(),
-                cachedUserDetails.getAuthorities()
-        );
-    }
     // SecurityContext에 인증 정보 설정 메서드
     private void setAuthentication(UserDetails userDetails, HttpServletRequest request) {
         UsernamePasswordAuthenticationToken authentication =
