@@ -1,22 +1,25 @@
-package autotradingAuthenticate.autotrading.board.jwt;
+package autotradingAuthenticate.autotrading.utils.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 @Component
 public class JwtUtil {
-
-    // 더 강력한 256비트 키 생성
     private final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 15; // 15분
+    private final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7일
 
     // JWT에서 사용자 이름 추출
     public String extractUsername(String token) {
@@ -34,9 +37,8 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        // 최신 JJWT 방식으로 수정 (parserBuilder 사용)
         return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)  // 키 설정
+                .setSigningKey(SECRET_KEY)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -47,24 +49,30 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 
-    // JWT 토큰 생성
-    public String generateToken(String username) {
+    // 액세스 토큰 생성
+    public String generateAccessToken(String username) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, username);
+        return createToken(claims, username, ACCESS_TOKEN_EXPIRATION);
     }
 
-    private String createToken(Map<String, Object> claims, String subject) {
+    // 공통 토큰 생성 메서드
+    private String createToken(Map<String, Object> claims, String subject, long expirationTime) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))  // 10시간 유효
-                .signWith(SECRET_KEY)  // 키만 전달
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .signWith(SECRET_KEY)
                 .compact();
     }
 
-    // JWT 유효성 검증
-    public Boolean validateToken(String token, String username) {
+    public String createRefreshToken(String username) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, username, REFRESH_TOKEN_EXPIRATION);
+    }
+
+    // 액세스 토큰 유효성 검증
+    public Boolean validateAccessToken(String token, String username) {
         final String extractedUsername = extractUsername(token);
         return (extractedUsername.equals(username) && !isTokenExpired(token));
     }

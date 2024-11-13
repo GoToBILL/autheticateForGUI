@@ -1,7 +1,6 @@
-package autotradingAuthenticate.autotrading.board.jwt;
+package autotradingAuthenticate.autotrading.utils.jwt;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,13 +20,12 @@ public class JwtAuthenticationController {
 
     @GetMapping("/validate-token")
     public ResponseEntity<Map<String, Object>> validateToken(
-            @RequestHeader("Authorization") String authHeader, HttpServletRequest request, HttpServletResponse response) {
+            @RequestHeader("Authorization") String authHeader, HttpServletRequest request) {
 
         Map<String, Object> responseMap = new HashMap<>();
         try {
             // JWT 토큰 검증 및 사용자 인증 정보 설정
-            jwtAuthenticationService.authenticateToken(authHeader, request,response);
-
+            jwtAuthenticationService.authenticateToken(authHeader, request, null); // response는 null로 설정
             // 토큰이 유효하면 응답에 true와 사용자 정보를 추가
             responseMap.put("valid", true);
             responseMap.put("username", jwtUtil.extractUsername(authHeader.substring(7)));
