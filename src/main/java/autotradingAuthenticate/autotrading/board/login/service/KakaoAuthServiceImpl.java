@@ -9,6 +9,7 @@ import autotradingAuthenticate.autotrading.board.login.dto.KakaoUserResponse;
 import autotradingAuthenticate.autotrading.board.member.entity.Member;
 import autotradingAuthenticate.autotrading.board.member.entity.Role;
 import autotradingAuthenticate.autotrading.board.member.repository.MemberRepository;
+import autotradingAuthenticate.autotrading.board.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class KakaoAuthServiceImpl implements KakaoAuthService {
 
     private final KakaoUtil kakaoUtil;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
 
@@ -30,22 +31,21 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
         KakaoUserResponse userInfo = kakaoUtil.getUserInfo(tokenResponse.getAccessToken());
 
         // Step 3: 사용자 정보 데이터베이스 처리
-        Member member = memberRepository.findByKakaoId(String.valueOf(userInfo.getId()))
-                .orElseGet(() -> {
-                    // 새 카카오 사용자 등록
-                    Member newMember = new Member(
-                            String.valueOf(userInfo.getId()),
-                            userInfo.getKakaoAccount().getEmail(),
-                            userInfo.getKakaoAccount().getProfile().getNickname(),
-                            userInfo.getKakaoAccount().getProfile().getProfileImageUrl(),
-                            Role.ROLE_USER // 기본 역할 설정
-                    );
-                    return memberRepository.save(newMember);
-                });
+        Member member = memberService.findByKakaoId(String.valueOf(userInfo.getId()));
+        if (member == null) {
+            member = memberService.saveNewMember(
+                    String.valueOf(userInfo.getId()),
+                    userInfo.getKakaoAccount().getEmail(),
+                    userInfo.getKakaoAccount().getProfile().getNickname(),
+                    userInfo.getKakaoAccount().getProfile().getProfileImageUrl()
+            );
+        }
 
-        // Step 4: JWT 토큰 생성
-        String accessToken = jwtUtil.generateAccessToken(member.getEmail());
-        String refreshToken = refreshTokenService.generateAndStoreRefreshToken(member.getNickname());
+        String emailLocalPart = member.getEmail().split("@")[0];
+
+        // Step 5: JWT 토큰 생성
+        String accessToken = jwtUtil.generateAccessToken(emailLocalPart);
+        String refreshToken = refreshTokenService.generateAndStoreRefreshToken(emailLocalPart);
 
         return new TokenResponseDto(accessToken, refreshToken);
     }
