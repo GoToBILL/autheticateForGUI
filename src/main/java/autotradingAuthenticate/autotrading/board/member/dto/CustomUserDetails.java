@@ -21,7 +21,6 @@ public class CustomUserDetails implements UserDetails, Serializable {
 
     private String username;
 
-    @JsonIgnore
     private String password;
 
     @Builder.Default
@@ -36,7 +35,6 @@ public class CustomUserDetails implements UserDetails, Serializable {
     }
 
     @Override
-    @JsonIgnore
     public String getPassword() {
         return password;
     }
