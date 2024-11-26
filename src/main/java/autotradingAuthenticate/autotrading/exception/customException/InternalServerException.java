@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 public class InternalServerException extends BaseException {
     public InternalServerException(ErrorMessage error) {
-        super(error, "[InternalServerException] " + error.getMessage());
+        super(error);
     }
 }

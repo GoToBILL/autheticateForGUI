@@ -8,8 +8,8 @@ public class BaseException extends RuntimeException {
 
     private final ErrorMessage error;
 
-    public BaseException(ErrorMessage error, String message) {
-        super(message);
+    public BaseException(ErrorMessage error) {
+        super(error.getMessage()); // ErrorMessage의 메시지 사용
         this.error = error;
     }
 

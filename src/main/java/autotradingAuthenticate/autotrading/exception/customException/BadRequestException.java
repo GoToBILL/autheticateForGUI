@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 public class BadRequestException extends BaseException {
     public BadRequestException(ErrorMessage error) {
-        super(error, "[BadRequestException] " + error.getMessage());
+        super(error);
     }
 }
