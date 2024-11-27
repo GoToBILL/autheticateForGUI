@@ -2,6 +2,8 @@ package autotradingAuthenticate.autotrading.board.jwt.service;
 
 import autotradingAuthenticate.autotrading.board.member.service.CachedUserDetailsService;
 import autotradingAuthenticate.autotrading.board.jwt.JwtUtil;
+import autotradingAuthenticate.autotrading.exception.customException.AuthenticationException;
+import autotradingAuthenticate.autotrading.exception.response.ErrorMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Service
 @RequiredArgsConstructor
@@ -40,8 +44,7 @@ public class JwtAuthenticationService {
                 username = jwtUtil.extractUsername(jwt);
             } catch (Exception e) {
                 // JWT 파싱 중 예외 발생 시
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
-                return;
+                throw new AuthenticationException(ErrorMessage.INVALID_TOKEN);
             }
         }
 
@@ -53,7 +56,7 @@ public class JwtAuthenticationService {
             if (jwtUtil.validateAccessToken(jwt, userDetails.getUsername())) {
                 setAuthentication(userDetails, request); // 인증 설정
             } else {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired access token");
+                throw new AuthenticationException(ErrorMessage.EXPIRED_TOKEN);
             }
         }
     }

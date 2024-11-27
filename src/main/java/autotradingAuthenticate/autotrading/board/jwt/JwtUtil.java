@@ -1,4 +1,4 @@
-package autotradingAuthenticate.autotrading.utils.jwt;
+package autotradingAuthenticate.autotrading.board.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
