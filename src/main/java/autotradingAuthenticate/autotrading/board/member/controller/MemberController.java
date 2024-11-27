@@ -24,8 +24,6 @@ public class MemberController {
 
     @PostMapping
     public String signup(@ModelAttribute MemberSignupDto signupDto, @RequestParam(value = "redirectUrl", required = false) String redirectUrl) {
-        System.out.println(signupDto.getPassword());
-
         memberService.signup(signupDto); // 회원가입 로직 수행
 
         return "redirect:/";
