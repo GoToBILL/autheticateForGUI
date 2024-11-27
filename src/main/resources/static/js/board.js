@@ -11,31 +11,38 @@ function loadBoardPosts() {
     axios.get('/board/posts', {
         params: {
             page: currentPage,
-            size:pageSize
+            size: pageSize
         }
     })
         .then(response => {
-            const posts = response.data.content; // 서버에서 받은 게시글 배열
-            const totalPages = response.data.totalPages; // 전체 페이지 수
+            // ApiResponse 구조를 기반으로 처리
+            const apiResponse = response.data;
+            if (apiResponse.status !== 200) {
+                console.error('API 에러:', apiResponse.message);
+                return;
+            }
+
+            const posts = apiResponse.data.content; // 서버에서 받은 게시글 배열
+            const totalPages = apiResponse.data.totalPages; // 전체 페이지 수
 
             // 글 추가 버튼 HTML 생성
             let addButtonHtml = `
-            <button id="add-post-button" class="btn add-button">글 추가</button>
-        `;
+                <button id="add-post-button" class="btn add-button">글 추가</button>
+            `;
 
             // 게시글 목록 HTML 생성
             let postListHtml = '<div class="post-list">';
             posts.forEach(post => {
                 postListHtml += `
-                <div class="post-card" data-post-id="${post.id}">
-                    <h3 class="post-title">${post.title}</h3>
-                    <p class="post-content">${post.content}</p>
-                    <div class="post-footer">
-                        <span class="post-author">작성자: ${post.author}</span>
-                        <span class="post-date">작성일: ${post.createdDate}</span>
+                    <div class="post-card" data-post-id="${post.id}">
+                        <h3 class="post-title">${post.title}</h3>
+                        <p class="post-content">${post.content}</p>
+                        <div class="post-footer">
+                            <span class="post-author">작성자: ${post.author}</span>
+                            <span class="post-date">작성일: ${post.createdDate}</span>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
             });
             postListHtml += '</div>';
 
@@ -67,7 +74,14 @@ function loadBoardPosts() {
 function showPostDetail(postId) {
     axios.get(`/board/posts/${postId}`)
         .then(response => {
-            const post = response.data; // 서버에서 받은 게시글 객체
+            // ApiResponse 구조를 기반으로 처리
+            const apiResponse = response.data;
+            if (apiResponse.status !== 200) {
+                console.error('API 에러:', apiResponse.message);
+                return;
+            }
+
+            const post = apiResponse.data; // 서버에서 받은 게시글 객체
 
             const postDetailHtml = `
                 <div class="post-detail-container">
@@ -92,6 +106,7 @@ function goToPage(pageNumber) {
     currentPage = pageNumber; // 현재 페이지 업데이트
     loadBoardPosts(); // 새로운 페이지의 게시글 로드
 }
+
 // 목록으로 돌아가기 함수
 function goBackToList() {
     loadBoardPosts(); // 게시판 목록을 다시 불러옴
@@ -111,10 +126,6 @@ function showAddPostForm() {
                     <label for="post-content">내용:</label>
                     <textarea id="post-content" name="content" required></textarea>
                 </div>
-<!--                <div style="width: 100%;">-->
-<!--                    <label for="post-author">작성자:</label>-->
-<!--                    <input type="text" id="post-author" name="author" required>-->
-<!--                </div>-->
                 <div class="button-container">
                     <button type="button" class="btn submit-button" onclick="addPost()">작성 완료</button>
                     <button type="button" class="btn cancel-button" onclick="goBackToList()">취소</button>
@@ -129,11 +140,17 @@ function showAddPostForm() {
 function addPost() {
     const title = document.getElementById('post-title').value;
     const content = document.getElementById('post-content').value;
-    // const author = document.getElementById('post-author').value;
 
-    axios.post('/board/posts', { title, content})
+    axios.post('/board/posts', { title, content })
         .then(response => {
-            console.log('게시글 추가 성공:', response);
+            // ApiResponse 구조를 기반으로 처리
+            const apiResponse = response.data;
+            if (apiResponse.status !== 201) {
+                console.error('API 에러:', apiResponse.message);
+                return;
+            }
+
+            console.log('게시글 추가 성공:', apiResponse.message);
             goBackToList(); // 작성 후 목록으로 돌아가기
         })
         .catch(error => {

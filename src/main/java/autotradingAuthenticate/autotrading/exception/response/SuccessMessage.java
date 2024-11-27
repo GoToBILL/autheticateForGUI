@@ -40,7 +40,8 @@ public enum SuccessMessage {
     BOOKMARK_REMOVE_SUCCESS(OK, "게시글 북마크 취소 성공"),
 
     // 기타
-    CATEGORY_LIST_SUCCESS(OK, "카테고리 목록 조회 성공"),;
+    CATEGORY_LIST_SUCCESS(OK, "카테고리 목록 조회 성공"),
+    TOKEN_VALIDATION_SUCCESS(OK, "올바른 토큰입니다."),;
 
     private final HttpStatus httpStatus;
     private final String message;

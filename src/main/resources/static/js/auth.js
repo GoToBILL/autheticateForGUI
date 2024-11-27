@@ -1,20 +1,50 @@
-// src/main/resources/static/js/auth.js
+// 새 액세스 토큰을 요청하는 함수
+async function refreshAccessToken() {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) throw new Error('리프레시 토큰이 없습니다.');
 
-// JWT 토큰을 localStorage에 저장하는 함수
-function storeToken(token) {
-    localStorage.setItem('token', token);
-    console.log('토큰 저장 완료:', token);
+    const response = await fetch('/auth/refresh', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${refreshToken}`
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error('토큰 갱신 실패');
+    }
+
+    const data = await response.json();
+    storeTokens(data.accessToken, data.refreshToken);
+    return data.accessToken;
 }
 
-
 // JWT 토큰을 Authorization 헤더에 추가하는 fetch 함수
-function authorizedFetch(url, options = {}) {
-    const token = localStorage.getItem('token');
-    if (token) {
-        options.headers = {
-            ...options.headers,
-            'Authorization': `Bearer ${token}`
-        };
+async function authorizedFetch(url, options = {}) {
+    let token = localStorage.getItem('accessToken');
+    if (!token) {
+        throw new Error('액세스 토큰이 없습니다.');
     }
-    return fetch(url, options);
+
+    options.headers = {
+        ...options.headers,
+        'Authorization': `Bearer ${token}`
+    };
+
+    let response = await fetch(url, options);
+
+    // 액세스 토큰이 만료된 경우
+    if (response.status === 401) {
+        try {
+            token = await refreshAccessToken(); // 새로운 액세스 토큰 발급
+            options.headers['Authorization'] = `Bearer ${token}`;
+            response = await fetch(url, options); // 요청 재시도
+        } catch (error) {
+            console.error('토큰 갱신 실패:', error);
+            throw error;
+        }
+    }
+
+    return response;
 }

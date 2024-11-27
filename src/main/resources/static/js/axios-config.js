@@ -4,7 +4,7 @@ axios.defaults.headers.post['Content-Type'] = 'application/json';
 
 axios.interceptors.request.use(
     config => {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('accessToken');
         if (token) {
             // token 값에 문제가 있을 경우 인코딩하여 처리
             config.headers['Authorization'] = `Bearer ${token}`;

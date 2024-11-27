@@ -39,6 +39,11 @@ public enum ErrorMessage {
     BOOKMARK_ADD_FAILED(BAD_REQUEST, "북마크 추가 실패"),
     BOOKMARK_REMOVE_FAILED(BAD_REQUEST, "북마크 취소 실패"),
 
+    // 인증 실패 메시지
+    AUTHENTICATION_FAILED(UNAUTHORIZED, "인증에 실패했습니다."),
+    INVALID_TOKEN(UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+    EXPIRED_TOKEN(UNAUTHORIZED, "만료된 토큰입니다."),
+
     // 기타 실패 메시지
     CATEGORY_NOT_FOUND(NOT_FOUND, "존재하지 않는 카테고리"),
     CATEGORY_LIST_FAILED(INTERNAL_SERVER_ERROR, "카테고리 목록 조회 실패"),
