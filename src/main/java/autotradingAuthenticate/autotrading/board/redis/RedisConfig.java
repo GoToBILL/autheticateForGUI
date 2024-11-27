@@ -19,7 +19,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.Duration;
 
 @Configuration
-@EnableCaching
 public class RedisConfig {
 
     @Bean
@@ -44,5 +43,4 @@ public class RedisConfig {
                 .cacheDefaults(cacheConfig)
                 .build();
     }
-
 }

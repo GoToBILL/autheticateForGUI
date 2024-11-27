@@ -18,6 +18,6 @@ public class ControllerExceptionAdvice {
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ApiResponse> handleBaseException(BaseException exception) {
         return ResponseEntity.status(exception.getError().getHttpStatus())
-                .body(ApiResponse.error(exception.getError(), exception.getMessage()));
+                .body(ApiResponse.error(exception.getError()));
     }
 }

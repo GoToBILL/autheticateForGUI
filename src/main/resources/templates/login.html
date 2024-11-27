@@ -63,27 +63,31 @@
             },
             body: JSON.stringify({
                 username: username,
-                password: password,
-                redirectUrl: redirectUrl
+                password: password
             })
         })
             .then(response => {
-                console.log('Response Status:', response.status); // 응답 상태 코드 확인
-                if (!response.ok) {
-                    alert("아이디 혹은 비밀번호가 틀렸습니다."); // 오류 메시지를 alert로 출력
-                    throw new Error('로그인 요청 실패'); // 오류 발생
-                }
-                return response.json(); // JSON 응답으로 받아오기
+                return response.json().then(apiResponse => {
+
+                    if (response.ok) {
+                        return apiResponse; // 성공 응답 반환
+                    } else {
+                        // 실패 처리
+                        alert(apiResponse.message || "아이디 혹은 비밀번호가 틀렸습니다.");
+                        throw new Error(apiResponse.message || '로그인 요청 실패');
+                    }
+                });
             })
-            .then(data => {
-                alert("로그인에 성공했습니다."); // 로그인 성공 메시지 출력
-                storeTokens(data.accessToken, data.refreshToken); // 두 개의 토큰을 저장
+            .then(apiResponse => {
+                const { data, message, status } = apiResponse; // ApiResponse 구조 기반으로 데이터 추출
+                console.log(`Response Status: ${status}`); // 응답 status 확인
+                alert(message || "로그인에 성공했습니다."); // 성공 메시지 출력
+                storeTokens(data.accessToken, data.refreshToken); // 토큰 저장
+
                 if (redirectUrl && redirectUrl.trim() !== '') {
-                    // redirectUrl이 있는 경우 해당 URL로 이동
-                    window.location.href = redirectUrl;
+                    window.location.href = redirectUrl; // redirectUrl이 있는 경우 해당 URL로 이동
                 } else {
-                    // redirectUrl이 없는 경우 기본 홈 페이지로 이동
-                    window.location.href = '/'; // 홈 페이지로 리다이렉트
+                    window.location.href = '/'; // 기본 홈 페이지로 이동
                 }
             })
             .catch(error => {

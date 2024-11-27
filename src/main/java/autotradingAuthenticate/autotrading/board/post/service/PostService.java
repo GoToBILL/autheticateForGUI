@@ -6,6 +6,8 @@ import autotradingAuthenticate.autotrading.board.post.dto.ResponsePostDto;
 import autotradingAuthenticate.autotrading.board.post.entity.Post;
 import autotradingAuthenticate.autotrading.board.member.repository.MemberRepository;
 import autotradingAuthenticate.autotrading.board.post.repository.PostRepository;
+import autotradingAuthenticate.autotrading.exception.customException.NotFoundException;
+import autotradingAuthenticate.autotrading.exception.response.ErrorMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +29,7 @@ public class PostService {
 
     public Post createPost(PostDto postDto, String username) {
         Member member = memberRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Member not found"));
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.USER_NOT_EXIST));
         Post post = new Post(postDto.getTitle(), postDto.getContent(), member);
         member.getPosts().add(post);
         return postRepository.save(post);
@@ -35,7 +37,7 @@ public class PostService {
 
     public Page<ResponsePostDto> getAllPosts(Pageable pageable) {
         return postRepository.findAll(pageable)
-                .map(post -> new ResponsePostDto(post));
+                .map(ResponsePostDto::new);
     }
 
 

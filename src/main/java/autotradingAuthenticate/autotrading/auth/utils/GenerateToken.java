@@ -1,4 +1,4 @@
-package autotradingAuthenticate.autotrading.utils;
+package autotradingAuthenticate.autotrading.auth.utils;
 
 import java.util.UUID;
 

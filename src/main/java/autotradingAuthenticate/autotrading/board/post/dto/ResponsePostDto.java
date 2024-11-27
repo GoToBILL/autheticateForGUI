@@ -25,7 +25,7 @@ public class ResponsePostDto {
         this.id = post.getId();
         this.title = post.getTitle();
         this.content = post.getContent();
-        this.author = post.getAuthor().getUsername();
+        this.author = post.getAuthor() != null ? post.getAuthor().getUsername() : "Unknown";
         this.createdDate = post.getCreatedDate().format(DATE_FORMATTER);
     }
 }
