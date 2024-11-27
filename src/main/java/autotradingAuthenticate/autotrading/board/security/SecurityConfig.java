@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .csrf().disable()  // CSRF 보호 비활성화
                 .authorizeHttpRequests()
                 .requestMatchers("/", "/login", "/signup", "/swagger-ui/**", "/v3/api-docs/**"
-                        , "/css/**", "/js/**", "/images/**", "/webjars/**", "/validate-token","/cache-test").permitAll()  // 인증이 필요 없는 경로 설정
+                        , "/css/**", "/js/**", "/images/**", "/webjars/**", "/validate-token","/cache-test","/auth/login/kakao/**").permitAll()  // 인증이 필요 없는 경로 설정
                 .anyRequest().authenticated()  // 나머지 요청은 인증 필요
                 .and()
                 .sessionManagement()

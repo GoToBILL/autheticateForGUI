@@ -23,10 +23,14 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             originalUrl += "?" + queryString;
         }
 
-        // 로그인 페이지 URL 생성, 원래 URL을 redirectUrl 파라미터로 추가
-        String loginPageUrl = "/login?redirectUrl=" + originalUrl;
-
-        // 로그인 페이지로 리다이렉트
-        response.sendRedirect(loginPageUrl);
+        // 이미 redirectUrl이 포함된 경우 중첩 방지를 위해 추가하지 않음
+        if (!originalUrl.contains("redirectUrl")) {
+            // 로그인 페이지 URL 생성, 원래 URL을 redirectUrl 파라미터로 추가
+            String loginPageUrl = "/login?redirectUrl=" + originalUrl;
+            response.sendRedirect(loginPageUrl);
+        } else {
+            // 중첩 방지를 위해 그냥 로그인 페이지로만 리다이렉트
+            response.sendRedirect("/login");
+        }
     }
 }
