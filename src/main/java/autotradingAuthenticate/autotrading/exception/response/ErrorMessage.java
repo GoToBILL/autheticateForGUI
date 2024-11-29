@@ -47,7 +47,17 @@ public enum ErrorMessage {
     // 기타 실패 메시지
     CATEGORY_NOT_FOUND(NOT_FOUND, "존재하지 않는 카테고리"),
     CATEGORY_LIST_FAILED(INTERNAL_SERVER_ERROR, "카테고리 목록 조회 실패"),
-    UNEXPECTED_ERROR(INTERNAL_SERVER_ERROR, "예상치 못한 오류가 발생했습니다.");
+    UNEXPECTED_ERROR(INTERNAL_SERVER_ERROR, "예상치 못한 오류가 발생했습니다."),
+
+    // 베팅 관련 메시지
+    BET_NOT_FOUND(NOT_FOUND, "존재하지 않는 내기입니다."),
+    BET_MEMBER_NOT_FOUND(NOT_FOUND, "내기에 존재하지 않은 사람입니다."),
+    BET_ALREADY_CONFIRMED(BAD_REQUEST, "이미 확정된 내기입니다."),
+    BET_CREATOR_ONLY(BAD_REQUEST, "내기 생성자만 수행할 수 있는 작업입니다."),
+    BET_MEMBER_ALREADY_PARTICIPATING(BAD_REQUEST, "이미 내기에 참여 중입니다."),
+    BET_PARTICIPATION_NOT_FOUND(NOT_FOUND, "해당 참여자를 찾을 수 없습니다."),
+    BET_PARTICIPATION_CANNOT_BE_REMOVED(BAD_REQUEST, "내기 확정 후에는 참여를 취소할 수 없습니다."),
+    BET_DELETION_NOT_ALLOWED(BAD_REQUEST, "내기 삭제는 생성자만 가능합니다."),;
 
     private final HttpStatus httpStatus;
     private final String message;
