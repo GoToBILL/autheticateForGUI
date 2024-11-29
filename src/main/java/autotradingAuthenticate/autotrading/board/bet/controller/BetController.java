@@ -1,5 +1,6 @@
 package autotradingAuthenticate.autotrading.board.bet.controller;
 
+import autotradingAuthenticate.autotrading.board.bet.dto.BetRequestDto;
 import autotradingAuthenticate.autotrading.board.bet.entity.Bet;
 import autotradingAuthenticate.autotrading.board.bet.service.BetService;
 import autotradingAuthenticate.autotrading.board.member.entity.Member;
@@ -11,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/bet-board")
+@RequestMapping("/bet")
 @RequiredArgsConstructor
 public class BetController {
 
@@ -44,8 +45,9 @@ public class BetController {
 
     // 내기 생성
     @PostMapping("/create")
-    public ResponseEntity<String> createBet(@RequestBody Bet bet, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<String> createBet(@RequestBody BetRequestDto betRequestDto, @AuthenticationPrincipal UserDetails userDetails) {
         Member creator = memberService.findByUsername(userDetails.getUsername()); // 인증된 사용자 정보로 멤버 조회
+        Bet bet = betRequestDto.toBet(creator);
         betService.createBet(bet, creator);
         return ResponseEntity.ok("내기 생성 완료");
     }

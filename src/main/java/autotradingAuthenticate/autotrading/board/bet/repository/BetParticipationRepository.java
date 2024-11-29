@@ -11,7 +11,8 @@ import java.util.Optional;
 
 @Repository
 public interface BetParticipationRepository extends JpaRepository<BetParticipation, Long> {
-    Optional<BetParticipation> findByBetAndMember(Bet bet, Member member);
+    List<BetParticipation> findByBetId(Long betId);
 
-    List<BetParticipation> findByBet(Bet bet);
+    // 특정 참여자 조회
+    Optional<BetParticipation> findByBetIdAndMemberId(Long betId, Long memberId);
 }

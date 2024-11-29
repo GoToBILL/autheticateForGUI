@@ -10,23 +10,36 @@ import lombok.NoArgsConstructor;
 @Data
 public class BetParticipation {
 
-    @Id @Column(name = "bet_participation_id")
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "bet_id")
+    @JoinColumn(name = "bet_id", nullable = false)
     private Bet bet;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    private boolean isParticipating; // 참여 여부
-    // 생성자
-    public BetParticipation(Bet bet, Member member, boolean isParticipating) {
+    @Enumerated(EnumType.STRING)
+    private BetRole role; // CREATOR or PARTICIPANT
+
+    @Enumerated(EnumType.STRING)
+    private ParticipationStatus status; // INVITED, ACCEPTED, REJECTED, etc.
+
+    public BetParticipation(Bet bet, Member member, BetRole role, ParticipationStatus status) {
         this.bet = bet;
         this.member = member;
-        this.isParticipating = isParticipating;
+        this.role = role;
+        this.status = status;
+    }
+
+    public boolean isCreator() {
+        return this.role == BetRole.CREATOR;
+    }
+
+    public void changeStatus(ParticipationStatus newStatus) {
+        this.status = newStatus;
     }
 }

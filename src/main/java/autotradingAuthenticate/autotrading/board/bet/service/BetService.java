@@ -2,9 +2,14 @@ package autotradingAuthenticate.autotrading.board.bet.service;
 
 import autotradingAuthenticate.autotrading.board.bet.entity.Bet;
 import autotradingAuthenticate.autotrading.board.bet.entity.BetParticipation;
+import autotradingAuthenticate.autotrading.board.bet.entity.BetRole;
+import autotradingAuthenticate.autotrading.board.bet.entity.ParticipationStatus;
 import autotradingAuthenticate.autotrading.board.bet.repository.BetParticipationRepository;
 import autotradingAuthenticate.autotrading.board.bet.repository.BetRepository;
 import autotradingAuthenticate.autotrading.board.member.entity.Member;
+import autotradingAuthenticate.autotrading.exception.customException.BadRequestException;
+import autotradingAuthenticate.autotrading.exception.customException.NotFoundException;
+import autotradingAuthenticate.autotrading.exception.response.ErrorMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -23,75 +28,54 @@ public class BetService {
 
     // 내기 참여
     public void participateInBet(Long betId, Member member) {
-        Optional<Bet> optionalBet = betRepository.findById(betId);
-        if (optionalBet.isPresent()) {
-            Bet bet = optionalBet.get();
-            if (!bet.isConfirmed()) {
-                Optional<BetParticipation> existingParticipation = betParticipationRepository.findByBetAndMember(bet, member);
-
-                // 이미 참여하지 않은 경우에만 참여 추가
-                if (!existingParticipation.isPresent()) {
-                    BetParticipation participation = new BetParticipation(bet, member, true);
-                    bet.addParticipation(participation);
-                    member.addParticipation(participation);
-
-                    // BetParticipation을 저장
-                    betParticipationRepository.save(participation);
-                } else {
-                    throw new IllegalStateException("Member already participating in this bet.");
-                }
-            } else {
-                throw new IllegalStateException("Bet has already been confirmed.");
-            }
+        Bet bet = findBetById(betId);
+        if (bet.isConfirmed()) {
+            throw new BadRequestException(ErrorMessage.BET_ALREADY_CONFIRMED);
         }
+
+        boolean alreadyParticipating = betParticipationRepository.findByBetIdAndMemberId(betId, member.getId()).isPresent();
+        if (alreadyParticipating) {
+            throw new BadRequestException(ErrorMessage.BET_MEMBER_ALREADY_PARTICIPATING);
+        }
+
+        BetParticipation participation = new BetParticipation(bet, member, BetRole.PARTICIPANT, ParticipationStatus.ACCEPTED);
+        bet.addParticipation(participation);
+        member.addParticipation(participation);
+
+        betParticipationRepository.save(participation);
     }
 
     // 내기 참여 취소
     public void cancelParticipationInBet(Long betId, Member member) {
-        Optional<Bet> optionalBet = betRepository.findById(betId);
-        if (optionalBet.isPresent()) {
-            Bet bet = optionalBet.get();
-            if (!bet.isConfirmed()) {
-                Optional<BetParticipation> participation = betParticipationRepository.findByBetAndMember(bet, member);
-                if (participation.isPresent()) {
-                    // BetParticipation을 삭제
-                    betParticipationRepository.delete(participation.get());
+        Bet bet = findBetById(betId);
 
-                    // Bet의 participations 리스트에서도 제거
-                    bet.getParticipations().remove(participation.get());
-                    member.getBetParticipations().remove(participation.get());
-                } else {
-                    throw new IllegalStateException("Member is not participating in this bet.");
-                }
-            } else {
-                throw new IllegalStateException("Bet has already been confirmed.");
-            }
+        if (bet.isConfirmed()) {
+            throw new BadRequestException(ErrorMessage.BET_PARTICIPATION_CANNOT_BE_REMOVED);
         }
+
+        BetParticipation participation = betParticipationRepository.findByBetIdAndMemberId(betId, member.getId())
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.BET_PARTICIPATION_NOT_FOUND));
+
+        betParticipationRepository.delete(participation);
+        bet.getParticipations().remove(participation);
+        member.getBetParticipations().remove(participation);
     }
 
     // 내기 확정
     public void confirmBet(Long betId, Member creator) {
-        Optional<Bet> optionalBet = betRepository.findById(betId);
-        if (optionalBet.isPresent()) {
-            Bet bet = optionalBet.get();
-            if (bet.getAuthor().equals(creator.getUsername())) {
-                bet.setConfirmed(true);
-            } else {
-                throw new IllegalStateException("Only the creator can confirm the bet.");
-            }
+        Bet bet = findBetById(betId);
+
+        if (!bet.getAuthor().equals(creator.getUsername())) {
+            throw new BadRequestException(ErrorMessage.BET_CREATOR_ONLY);
         }
+        bet.setConfirmed(true);
     }
 
     // 내기 생성
     public void createBet(Bet bet, Member creator) {
-        // Bet의 생성자를 설정
-        bet.setAuthor(creator.getUsername());
-
-        // Bet 저장
         Bet savedBet = betRepository.save(bet);
 
-        // BetParticipation 생성 및 저장 (내기 생성자는 기본적으로 참여자로 추가됨)
-        BetParticipation participation = new BetParticipation(savedBet, creator, true);
+        BetParticipation participation = new BetParticipation(savedBet, creator, BetRole.CREATOR, ParticipationStatus.ACCEPTED);
         savedBet.addParticipation(participation);
         creator.addParticipation(participation);
 
@@ -100,27 +84,27 @@ public class BetService {
 
     // 내기 삭제
     public void deleteBet(Long betId, Member creator) {
-        Optional<Bet> optionalBet = betRepository.findById(betId);
-        if (optionalBet.isPresent()) {
-            Bet bet = optionalBet.get();
-            if (bet.getAuthor().equals(creator.getUsername())) {
-                // 관련된 BetParticipation 모두 가져오기
-                List<BetParticipation> participations = betParticipationRepository.findByBet(bet);
+        Bet bet = findBetById(betId);
 
-                // 각 BetParticipation에서 해당 Member의 participation 리스트에서 제거
-                for (BetParticipation participation : participations) {
-                    Member participant = participation.getMember();
-                    participant.getBetParticipations().remove(participation);  // Member의 participations에서 제거
-                }
-
-                // 관련된 BetParticipation 모두 삭제
-                betParticipationRepository.deleteAll(participations);
-
-                // Bet 삭제
-                betRepository.delete(bet);
-            } else {
-                throw new IllegalStateException("Only the creator can delete the bet.");
-            }
+        if (!bet.getAuthor().equals(creator.getUsername())) {
+            throw new BadRequestException(ErrorMessage.BET_DELETION_NOT_ALLOWED);
         }
+
+        List<BetParticipation> participations = betParticipationRepository.findByBetId(bet.getId());
+
+        participations.forEach(participation -> {
+            Member participant = participation.getMember();
+            participant.getBetParticipations().remove(participation);
+        });
+
+        betParticipationRepository.deleteAll(participations);
+        betRepository.delete(bet);
+    }
+
+    // 내기 조회 (공통 로직으로 분리)
+    @Transactional(readOnly = true)
+    public Bet findBetById(Long betId) {
+        return betRepository.findById(betId)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.BET_NOT_FOUND));
     }
 }
